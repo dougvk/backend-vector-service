@@ -19,7 +19,7 @@ LOCAL_EMBEDDING_MODEL = os.getenv("LOCAL_EMBEDDING_MODEL", "all-MiniLM-L6-v2")
 
 # Transcript processing configuration
 TRANSCRIPT_DIR = "transcripts"  # Directory to store transcript files
-CHUNK_SIZE = 2000  # Default chunk size for splitting transcripts (in words)
+CHUNK_SIZE = 500  # Default chunk size for splitting transcripts (in words)
 
 # Vector index configuration
 INDEX_STORAGE_DIR = "index_storage"  # Directory to store the vector index
