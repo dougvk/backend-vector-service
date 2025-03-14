@@ -1,0 +1,35 @@
+# App Flow Document
+
+## Introduction
+
+The application is a backend service designed to search through podcast transcripts using natural language queries. This system leverages a vector database, with transcript chunks represented as embeddings, to return the most contextually relevant text segments. The service reads local .txt files containing podcast transcripts, processes these files by splitting them into manageable chunks (by default 2000 words, which is configurable), and then generates vector embeddings using OpenAI’s embedding API. The llamaindex library is employed to store and index these embeddings. The overall goal is to provide a simple GET endpoint that, when queried, returns the top 10 most relevant transcript segments along with the podcast title extracted from the file names. This document explains how every component of the system connects from the initial processing of transcripts to the query response mechanism.
+
+## Onboarding and Sign-In/Sign-Up
+
+Since this is a backend service without a front-end interface or multi-user capabilities, there is no traditional onboarding process or sign-in system for unauthorized users. The application is deployed on a DigitalOcean droplet, and users interact with it through GET requests. Initialization of the system is handled automatically when the service starts. No separate account creation, login, or password recovery process exists. Instead, deployment instructions include loading the configuration parameters, such as the transcript chunk size and embedding configuration, so that the system is ready to process files immediately upon startup.
+
+## Main Dashboard or Home Page
+
+There is no traditional dashboard or home page because the service is designed for programmatic access via HTTP GET requests. Once the application is deployed, the main functionality revolves around a single endpoint that accepts query strings. Internally, the service begins by scanning the repository for transcript files and performs initial preprocessing. Although there is no graphical interface, logging provides a view into system operations such as file processing, embedding generation, and index creation, allowing developers to monitor and debug the system. The flow from system initialization to query response is seamless and automated.
+
+## Detailed Feature Flows and Page Transitions
+
+The first step in the process involves importing these files where the service reads each file, extracts relevant metadata such as the podcast title from the file name, and prepares the content for further processing. The next step involves transcript preprocessing where the text is split into manageable chunks. The default is set to 2000 words per chunk, but this is exposed as a configurable variable. Once the transcripts are split, the application proceeds to the embedding generation module. In this module, each text chunk is submitted to OpenAI’s embedding API to produce a vector embedding. The service ensures that the API connection details are configurable, though it defaults to OpenAI’s standard settings.
+
+After generating the embeddings, the system moves on to indexing and storage by employing the llamaindex library. This module organizes each embedding along with its associated metadata in a vector database that is optimized for similarity search operations. The embedding and indexing process ensures that when a query is received, the system can quickly perform a search through the vector data. The query handling component awaits GET requests. When a user submits a natural language query, the service converts the query into its embedding vector using the same API and then performs a similarity search within the pre-built index. The top 10 matching transcript chunks, complete with their corresponding podcast titles, are then returned as a response to the query, ensuring that the user sees the most relevant context for their query.
+
+The process is designed to handle continuous updates. When new transcript files are added to the repository, they are automatically picked up by the service which then runs them through the same processing pipeline: importing, splitting into chunks, generating embeddings, indexing, and finally making them searchable. All transitions between these processes are performed sequentially, with the system logging relevant details at each step to aid in debugging and monitoring.\
+\
+Deployment simply is just copy/pasting the entire codebase and database to the VPS on DigitalOcean.
+
+## Settings and Account Management
+
+Although the application does not include a user interface for account management, settings are managed through configuration files or environment variables. Developers can adjust parameters such as the transcript chunk size and the embedding API connection details prior to deployment. In this backend system, application settings play a crucial role by influencing preprocessing behavior and ensuring that the query responses are accurate. Once settings are updated, the system can be restarted to load new parameters and continue operations seamlessly. The configuration management process is designed to be simple and transparent so that any changes automatically propagate throughout all processing modules.
+
+## Error States and Alternate Paths
+
+In any system of this nature, error handling is vital. If the service encounters a file read error, if a transcript file is missing or corrupted, or if there are issues with the API call to OpenAI, the system logs detailed error messages while attempting to continue processing the remaining files. If a query is submitted while the service is experiencing connectivity issues with the embedding API, meaningful error messages are returned to indicate a temporary failure rather than returning incomplete data. In cases where misconfiguration is detected, such as an incorrect chunk size or API key, the error logging captures the issue and the service gracefully terminates or switches to a safe mode until corrections are made. These fallback mechanisms ensure that the overall system remains stable and that any interruption in normal flow is clearly communicated through logs and error responses.
+
+## Conclusion and Overall App Journey
+
+From system deployment to everyday query processing, the application offers a streamlined experience tailored for backend operations. The journey begins with the automatic scanning of the repository for .txt podcast transcripts, followed by detailed preprocessing, embedding generation via OpenAI’s API, and efficient indexing using the llamaindex library. With configurations easily managed through environment variables, developers maintain control over key parameters. The core service waits for GET requests which are processed by converting user queries into vector representations and performing similarity searches, ultimately returning the top 10 relevant transcript segments along with the associated podcast titles. This robust, transparent process ensures that the system meets its goal of providing fast, accurate responses while remaining straightforward to deploy and maintain.
