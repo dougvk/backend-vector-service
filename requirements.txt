@@ -4,3 +4,4 @@ llama-index==0.12.24
 python-dotenv==1.0.1
 sentence-transformers==2.6.1
 llama-index-embeddings-huggingface==0.5.2
+flask-cors==4.0.0

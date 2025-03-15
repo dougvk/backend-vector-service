@@ -8,6 +8,7 @@ import sys
 import logging
 import argparse
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 # Add the parent directory to the path to import config and modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -27,6 +28,8 @@ logger = logging.getLogger(__name__)
 
 # Initialize Flask app
 app = Flask(__name__)
+# Enable CORS for all routes
+CORS(app)
 
 # Default to config setting, but allow override via app.config
 app.config['USE_LOCAL_EMBEDDINGS'] = config.USE_LOCAL_EMBEDDINGS_FOR_TESTS
