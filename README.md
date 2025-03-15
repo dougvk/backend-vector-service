@@ -212,7 +212,7 @@ After=network.target
 [Service]
 User=<your-username>
 WorkingDirectory=/path/to/backend-vector-service
-ExecStart=/path/to/backend-vector-service/venv/bin/gunicorn -w 4 -b 0.0.0.0:8080 app.main:app
+ExecStart=/path/to/backend-vector-service/venv/bin/gunicorn --workers=1 --threads=4 -b 0.0.0.0:8080 app.main:app
 Restart=always
 
 [Install]
@@ -224,6 +224,15 @@ WantedBy=multi-user.target
 sudo systemctl enable vector-service
 sudo systemctl start vector-service
 ```
+
+### Memory Requirements
+
+The vector service requires approximately 1GB of memory when running with OpenAI embeddings for ~500 transcripts. For optimal performance on a DigitalOcean droplet:
+
+- **Recommended VPS size**: 2GB RAM Basic Droplet ($8/month)
+- **Worker configuration**: 1 worker with 4 threads (as configured above)
+
+This configuration balances memory usage and performance for a moderate number of transcripts. If you need to scale beyond 1000 transcripts, consider upgrading to a 4GB droplet.
 
 ## Maintenance
 
