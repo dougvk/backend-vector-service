@@ -58,13 +58,14 @@ def load_transcripts(directory_path: str) -> Dict[str, str]:
     
     return transcripts
 
-def split_transcript(text: str, chunk_size: int = config.CHUNK_SIZE) -> List[str]:
+def split_transcript(text: str, chunk_size: int = config.CHUNK_SIZE, overlap_percent: float = 0.1) -> List[str]:
     """
-    Split transcript text into chunks of specified size.
+    Split transcript text into chunks of specified size with overlap.
     
     Args:
         text: Transcript text to split
         chunk_size: Size of each chunk in words (default from config)
+        overlap_percent: Percentage of overlap between chunks (default 10%)
         
     Returns:
         List of text chunks
@@ -72,18 +73,34 @@ def split_transcript(text: str, chunk_size: int = config.CHUNK_SIZE) -> List[str
     # Split text into words
     words = text.split()
     
-    # Calculate number of chunks
-    num_chunks = max(1, (len(words) + chunk_size - 1) // chunk_size)
+    # Calculate overlap size in words
+    overlap_size = int(chunk_size * overlap_percent)
+    effective_chunk_size = chunk_size - overlap_size
     
-    # Split words into chunks
+    # Calculate number of chunks
+    if effective_chunk_size <= 0:
+        logger.warning(f"Overlap too large for chunk size. Using no overlap.")
+        effective_chunk_size = chunk_size
+        overlap_size = 0
+    
+    # Calculate number of chunks needed
+    if len(words) <= chunk_size:
+        num_chunks = 1
+    else:
+        num_chunks = 1 + (len(words) - chunk_size) // effective_chunk_size
+        # Add one more chunk if there are remaining words
+        if (len(words) - chunk_size) % effective_chunk_size > 0:
+            num_chunks += 1
+    
+    # Split words into chunks with overlap
     chunks = []
     for i in range(num_chunks):
-        start_idx = i * chunk_size
-        end_idx = min((i + 1) * chunk_size, len(words))
+        start_idx = i * effective_chunk_size
+        end_idx = min(start_idx + chunk_size, len(words))
         chunk = ' '.join(words[start_idx:end_idx])
         chunks.append(chunk)
     
-    logger.info(f"Split transcript into {len(chunks)} chunks of approximately {chunk_size} words each")
+    logger.info(f"Split transcript into {len(chunks)} chunks of approximately {chunk_size} words each with {overlap_percent*100}% overlap")
     return chunks
 
 def process_new_transcripts(directory_path: str) -> Dict[str, List[Tuple[str, str]]]:
